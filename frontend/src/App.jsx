@@ -5,16 +5,12 @@ import { MessageList } from "./components/MessageList"
 import { AuthModal } from "./components/AuthModal"
 
 export const App = () => {
-  // When a component's state changes, React automatically triggers a re-render of the component to reflect the updated state in the UI.
-  // Here we set our states for App.js:
-  const [loading, setLoading] = useState(false) // Initial state is false, no loading
-  const [messageList, setMessageList] = useState([]) // Initial state is an empty array
+  const [loading, setLoading] = useState(false)
+  const [messageList, setMessageList] = useState([])
   const [user, setUser] = useState(null)
   const [modal, setModal] = useState(null)
   const [error, setError] = useState(null)
 
-  // When fetchPosts sets the loading or messageList state, it triggers a re-render of the App component.
-  // We call the messages in the API, by GET method:
   const fetchPosts = () => {
     setLoading(true)
     fetch(`${BASE_URL}/messages`)
@@ -23,8 +19,6 @@ export const App = () => {
       .catch((error) => console.error(error))
       .finally(() => setLoading(false))
   }
-  // useEffect for fetchPosts is triggered only on mount because of the empty array argument
-  // The useEffect hook is used to call the fetchPosts function and update the messageList state with the data retrieved from the API.
   useEffect(() => {
     fetchPosts()
   }, [])
@@ -71,7 +65,7 @@ export const App = () => {
           mode={modal}
           onClose={() => setModal(null)}
           onSuccess={(data) => { 
-            console.log("User logged in:", data)  // ← Exposes full user object with token to devtools
+            console.log("User logged in:", data)
             setUser(data) 
             setModal(null) 
           }}

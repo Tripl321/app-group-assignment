@@ -25,7 +25,6 @@ app.get("/", (req, res) => {
   res.send(listEndpoints(app))
 })
 
-// register
 app.post("/register", async (req, res) => {
   try {
     const { email, password, username } = req.body
@@ -74,7 +73,6 @@ app.post("/register", async (req, res) => {
   }
 })
 
-// login
 app.post("/login", async (req, res) => {
   try {
     const { login, password } = req.body

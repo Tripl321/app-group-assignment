@@ -29,10 +29,10 @@ export const AuthModal = ({ mode, onClose, onSuccess }) => {
       const data = await res.json()
       if (!res.ok) throw new Error(data.message || "Something went wrong")
 
-      console.log("Auth successful:", data)  // ← Exposes full user object and accessToken to devtools
+      console.log("Auth successful:", data)
       onSuccess(data)
     } catch (err) {
-      console.log(err)  // ← Exposes full error object and stack trace to devtools
+      console.log(err)
       setError(err.message)
     } finally {
       setSubmitting(false)

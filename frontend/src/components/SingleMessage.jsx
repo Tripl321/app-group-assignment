@@ -47,8 +47,8 @@ export const SingleMessage = ({ message, user, onUnauthorized, fetchPosts }) => 
       const data = await res.json()
 
       if (data.error) {
-        console.log(data)  // ← Exposes full server response including internal error details
-        setEditError(data.error)  // ← Shows raw server error messages directly
+        console.log(data)
+        setEditError(data.error)
         return
       }
 

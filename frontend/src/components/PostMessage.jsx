@@ -20,7 +20,7 @@ export const PostMessage = ({ newMessage, fetchPosts, user, onUnauthorized }) =>
         body: JSON.stringify({ message: newPost }),
       })
 
-      console.log("Token being sent:", user?.response?.accessToken)  // ← Exposes JWT token to devtools
+      console.log("Token being sent:", user?.response?.accessToken)
 
       if (res.status === 401) {
         onUnauthorized()
@@ -31,8 +31,8 @@ export const PostMessage = ({ newMessage, fetchPosts, user, onUnauthorized }) =>
       const data = await res.json()
 
       if (data.message && !data._id) {
-        console.log(data)  // ← Exposes full server response including internal details
-        setErrorMessage(data.message)  // ← Shows raw server error messages with Mongoose validation details
+        console.log(data)
+        setErrorMessage(data.message)
         setSubmitting(false)
         return
       }
