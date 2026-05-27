@@ -19,7 +19,7 @@ Dokumentet utgör **Fas 1** av grupparbetet och är underlaget för kravspecifik
 
 ## Hotmodelleringstabell
 
-| **STRIDE-E** | **OWASP Top 10 (2025)** | **Säkerhetskrav (kravspecifikation)** | **Motivering (presentationsargument)** |
+| **STRIDE-E** | **OWASP Top 10 (2025)** | **Säkerhetskrav** | **Motivering** |
 | --- | --- | --- | --- |
 | **S — Spoofing** *(Identitetsförfalskning)* | **A07:** Authentication Failures | **Lösenordslös inloggning:** Systemet ska tillåta autentisering via **Passkeys (WebAuthn)** utan traditionella lösenord. | Genom att fasa ut lösenord eliminerar vi själva grundorsaken till läckta konton. Passkeys är kryptografiskt låsta till vår domän, vilket gör plattformen immun mot nätfiske (phishing) och brute-force. |
 | **T — Tampering** *(Manipulering)* | **A05:** Injection | **Strikt indatavalidering:** Systemet ska i backend validera att meddelanden är rensade (saniterade) och mellan **3–140 tecken**. | Genom att aldrig lita på data från frontend och tvinga fram validering i vår Express-API skyddar vi databasen från skadlig kod (SQL/NoSQL Injection) och XSS-attacker. |
