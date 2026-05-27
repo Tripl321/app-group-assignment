@@ -1,7 +1,6 @@
 # Fas 1 – Hotmodellering & Kravspecifikation (STRIDE-E + OWASP 2025)
 
 <aside>
-🎯
 
 **Syfte:** Identifiera de viktigaste hoten mot vår applikation med hjälp av **STRIDE-E**, mappa varje hot mot **OWASP Top 10 (2025)**, och formulera ett konkret, testbart säkerhetskrav per kategori.
 
@@ -49,7 +48,6 @@ Dokumentet utgör **Fas 1** av grupparbetet och är underlaget för kravspecifik
 - [WebAuthn / Passkeys (W3C)](https://www.w3.org/TR/webauthn-3/)
 
 <aside>
-📌
 
 **Nästa steg (Fas 2):** Översätta varje krav (K1–K6) till konkreta acceptanskriterier och testfall innan implementation påbörjas.
 
