@@ -33,12 +33,12 @@ Dokumentet utgör **Fas 1** av grupparbetet och är underlaget för kravspecifik
 
 ## Sammanfattning av kraven
 
-- [ ]  **K1 – Autentisering:** Passkeys/WebAuthn istället för lösenord.
-- [ ]  **K2 – Indatavalidering:** Sanitering + längdkontroll (3–140 tecken) i backend.
-- [ ]  **K3 – Loggning:** Granskningslogg med tidsstämpel, användar-ID och händelsetyp för mutationer.
-- [ ]  **K4 – Hemligheter:** Inga secrets i Git; allt via `.env` + `.gitignore`.
-- [ ]  **K5 – Tillgänglighet:** Rate limiting per IP och minut på API.
-- [ ]  **K6 – Auktorisering:** `author_id`-kontroll mot session vid alla mutationer.
+-   **K1 – Autentisering:** Passkeys/WebAuthn istället för lösenord.
+-   **K2 – Indatavalidering:** Sanitering + längdkontroll (3–140 tecken) i backend.
+-   **K3 – Loggning:** Granskningslogg med tidsstämpel, användar-ID och händelsetyp för mutationer.
+-   **K4 – Hemligheter:** Inga secrets i Git; allt via `.env` + `.gitignore`.
+-   **K5 – Tillgänglighet:** Rate limiting per IP och minut på API.
+-   **K6 – Auktorisering:** `author_id`-kontroll mot session vid alla mutationer.
 
 ---
 
