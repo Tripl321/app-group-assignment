@@ -16,12 +16,14 @@
 
 ```mermaid
 flowchart LR
-	Browser[Browser / Frontend]
+	Browser[Browser]
+	Frontend[Frontend]
 	Server[Express / Backend & API]
 	Database[Databas]
 
-	Browser -->|HTTP-anrop| Server
+	Browser -->|Öppnar| Frontend
+	Frontend -->|HTTP-anrop| Server
 	Server -->|Läser / sparar data| Database
 	Database -->|Svar med data| Server
-	Server -->|JSON-svar| Browser
+	Server -->|JSON-svar| Frontend
 ```
