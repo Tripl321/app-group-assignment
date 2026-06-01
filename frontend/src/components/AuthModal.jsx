@@ -29,11 +29,11 @@ export const AuthModal = ({ mode, onClose, onSuccess }) => {
       const data = await res.json()
       if (!res.ok) throw new Error(data.message || "Something went wrong")
 
-      console.log("Auth successful:", data)
+      // [KRAV K4] Borttagen: console.log("Auth successful:", data)
+      // Motivering: Loggrade hela auth-svaret inklusive JWT-token till konsolen.
       onSuccess(data)
-    } catch (err) {
-      console.log(err)
-      setError(err.message)
+    } catch (error) {
+      setError(error.message)
     } finally {
       setSubmitting(false)
     }

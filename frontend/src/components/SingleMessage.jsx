@@ -13,12 +13,19 @@ export const SingleMessage = ({ message, user, onUnauthorized, fetchPosts }) => 
       const res = await fetch(`${BASE_URL}/messages/${message._id}`, {
         method: "DELETE",
         headers: {
+          // [KRAV K6] Token skickas med DELETE-anropet.
+          // Backend kräver nu authenticateUser + ägarkontroll.
           Authorization: `Bearer ${user?.response?.accessToken}`,
         },
       })
 
       if (res.status === 401) {
         onUnauthorized()
+        return
+      }
+
+      // [KRAV K6] Om backend returnerar 403 = användaren äger inte meddelandet
+      if (res.status === 403) {
         return
       }
 
@@ -36,7 +43,9 @@ export const SingleMessage = ({ message, user, onUnauthorized, fetchPosts }) => 
           "Content-Type": "application/json",
           Authorization: `Bearer ${user?.response?.accessToken}`,
         },
-        body: JSON.stringify({ editedMessage: editedText }),
+        // [KRAV K2] Ändrat fältnamn från "editedMessage" till "message"
+        // för att matcha backend-endpointen konsekvent.
+        body: JSON.stringify({ message: editedText }),
       })
 
       if (res.status === 401) {
@@ -47,7 +56,7 @@ export const SingleMessage = ({ message, user, onUnauthorized, fetchPosts }) => 
       const data = await res.json()
 
       if (data.error) {
-        console.log(data)
+        // [KRAV K4] Borttagen: console.log(data) — läckte serverdata till konsolen
         setEditError(data.error)
         return
       }
@@ -83,7 +92,19 @@ export const SingleMessage = ({ message, user, onUnauthorized, fetchPosts }) => 
         )}
 
         <div className="message-actions">
-          <button type="button" className="delete-btn" onClick={onDelete}>🗑️</button>
+          {/* 
+              [KRAV K6] Delete-knappen villkorad med isOwner
+              FÖRE: <button className="delete-btn" onClick={onDelete}>🗑️</button>
+                - Synlig för ALLA användare, oavsett om de ägde meddelandet
+              EFTER: Visas bara om isOwner === true
+                - Samma mönster som edit-knappen redan använde
+              OBS: Detta är bara UI-skydd. Det riktiga skyddet sitter i backend
+              (authenticateUser + ägarkontroll). En angripare kan fortfarande
+              skicka ett DELETE-anrop via curl, men backend stoppar det.
+              */}
+          {isOwner && (
+            <button type="button" className="delete-btn" onClick={onDelete}>🗑️</button>
+          )}
 
           {isOwner && !isEditing && (
             <button type="button" className="edit-btn" onClick={() => setIsEditing(true)}>✏️</button>
