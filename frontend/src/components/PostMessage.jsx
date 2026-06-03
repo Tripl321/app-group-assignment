@@ -22,8 +22,7 @@ export const PostMessage = ({ newMessage, fetchPosts, user, onUnauthorized }) =>
 
       // [KRAV K4] Borttagen: console.log("Token being sent:", user?.response?.accessToken)
       // Motivering: JWT-token skrevs ut i klartext i webbläsarens konsol.
-      // Vem som helst med DevTools öppna kunde kopiera token och agera som
-      // den inloggade användaren. Känslig data ska ALDRIG loggas i frontend.
+      // Vem som helst med DevTools öppna kunde kopiera token och agera som den inloggade användaren. Känslig data ska ALDRIG loggas i frontend.
 
       if (res.status === 401) {
         onUnauthorized()
@@ -34,7 +33,7 @@ export const PostMessage = ({ newMessage, fetchPosts, user, onUnauthorized }) =>
       const data = await res.json()
 
       if (data.message && !data._id) {
-        // [KRAV K4] Borttagen: console.log(data) — läckte serverdata
+        // [KRAV K4] Borttagen: console.log(data): läckte serverdata
         setErrorMessage(data.message)
         setSubmitting(false)
         return
@@ -70,7 +69,7 @@ export const PostMessage = ({ newMessage, fetchPosts, user, onUnauthorized }) =>
           }}
           // [KRAV K2] Frontend-validering som komplement till backend.
           // maxLength hindrar användaren från att skriva mer än 140 tecken.
-          // OBS: Detta är INTE säkerhetsskyddet — det sitter i Mongoose-schemat.
+          // OBS: Detta är INTE säkerhetsskyddet, det sitter i Mongoose-schemat.
           maxLength={140}
         />
         <p className="error" id="post-error">{errorMessage}</p>
