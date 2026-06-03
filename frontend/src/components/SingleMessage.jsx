@@ -43,8 +43,7 @@ export const SingleMessage = ({ message, user, onUnauthorized, fetchPosts }) => 
           "Content-Type": "application/json",
           Authorization: `Bearer ${user?.response?.accessToken}`,
         },
-        // [KRAV K2] Ändrat fältnamn från "editedMessage" till "message"
-        // för att matcha backend-endpointen konsekvent.
+        // [KRAV K2] Ändrat fältnamn från "editedMessage" till "message" för att matcha backend-endpointen konsekvent.
         body: JSON.stringify({ message: editedText }),
       })
 
@@ -56,7 +55,7 @@ export const SingleMessage = ({ message, user, onUnauthorized, fetchPosts }) => 
       const data = await res.json()
 
       if (data.error) {
-        // [KRAV K4] Borttagen: console.log(data) — läckte serverdata till konsolen
+        // [KRAV K4] Borttagen: console.log(data): läckte serverdata till konsolen
         setEditError(data.error)
         return
       }
@@ -98,9 +97,8 @@ export const SingleMessage = ({ message, user, onUnauthorized, fetchPosts }) => 
                 - Synlig för ALLA användare, oavsett om de ägde meddelandet
               EFTER: Visas bara om isOwner === true
                 - Samma mönster som edit-knappen redan använde
-              OBS: Detta är bara UI-skydd. Det riktiga skyddet sitter i backend
-              (authenticateUser + ägarkontroll). En angripare kan fortfarande
-              skicka ett DELETE-anrop via curl, men backend stoppar det.
+              OBS: Detta är bara UI-skydd. Det riktiga skyddet sitter i backend (authenticateUser + ägarkontroll).
+              En angripare kan fortfarande skicka ett DELETE-anrop via curl, men backend stoppar det.
               */}
           {isOwner && (
             <button type="button" className="delete-btn" onClick={onDelete}>🗑️</button>

@@ -14,7 +14,7 @@ import "./config/db.js"
 // [KRAV K4] Borttagen: import listEndpoints from "express-list-endpoints"
 // Motivering: Exponerade alla API-endpoints för angripare. Borttagen för att minska attackytan.
 
-// [KRAV K4] JWT_SECRET hämtas från .env — aldrig hårdkodat i koden.
+// [KRAV K4] JWT_SECRET hämtas från .env, aldrig hårdkodat i koden.
 // Om .env saknas kraschar servern direkt istället för att köra med en osäker konfiguration.
 if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET is not set in .env")
 
@@ -23,10 +23,9 @@ const app = express()
 app.use(helmet())
 
 // [KRAV K4] CORS — Skyddade hemligheter & säker konfiguration
-// FÖRE: cors({ origin: "*" }) — tillät alla domäner att anropa vårt API.
+// FÖRE: cors({ origin: "*" }) tillät alla domäner att anropa vårt API.
 // EFTER: Begränsat till specifika origins via miljövariabel CORS_ORIGIN.
-// Motivering (OWASP A02 Security Misconfiguration): Wildcard-CORS låter
-// skadliga webbsidor göra API-anrop i inloggade användares namn.
+// Motivering (OWASP A02 Security Misconfiguration): Wildcard-CORS låter skadliga webbsidor göra API-anrop i inloggade användares namn.
 
 const allowedOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(",")
@@ -42,12 +41,10 @@ app.use(express.json())
 // [KRAV K5] Rate Limiting — Hastighetsbegränsning (STRIDE: Denial of Service)
 // OWASP A07: Authentication Failures
 //
-// FÖRE: Ingen begränsning alls — en angripare kunde skicka obegränsat antal
-//       anrop och antingen brute force:a lösenord eller överbelasta servern.
+// FÖRE: Ingen begränsning alls — en angripare kunde skicka obegränsat antal anrop och antingen brute force:a lösenord eller överbelasta servern.
 // EFTER: Två nivåer:
-//   - Generell: max 100 anrop per 15 min (skyddar hela API:et)
-//   - Auth-specifik: max 10 anrop per 15 min på /login och /register
-//     (stoppar brute force-attacker mot inloggningen)
+// - Generell: max 100 anrop per 15 min (skyddar hela API:et)
+// - Auth-specifik: max 10 anrop per 15 min på /login och /register (stoppar brute force-attacker mot inloggningen)
 
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -64,26 +61,25 @@ const authLimiter = rateLimit({
 app.use(generalLimiter)
 
 // [KRAV K4] Borttagen: app.get("/", (req, res) => res.send(listEndpoints(app)))
-// Motivering: Rot-endpointen listade alla API-endpoints — en komplett attackkarta.
+// Motivering: Rot-endpointen listade alla API-endpoints, en komplett attackkarta.
 app.get("/", (req, res) => {
   res.json({ message: "YH Message App API" })
 })
 
-// [KRAV K1] Spoofing — Lösenordslös inloggning (Passkeys / WebAuthn)
+// [KRAV K1] Spoofing: Lösenordslös inloggning (Passkeys / WebAuthn)
 // OWASP A07: Authentication Failures
-//
+
 // NULÄGE: Appen använder lösenordsbaserad autentisering med bcrypt + JWT.
-//         Lösenord kan phishas, brute force:as eller läcka via dataintrång.
-//
+// Lösenord kan phishas, brute force:as eller läcka via dataintrång.
+
 // FRAMTIDA IMPLEMENTATION:
 // - Installera paketet @simplewebauthn/server
 // - Skapa nya endpoints: POST /auth/passkey/register och POST /auth/passkey/login
 // - Spara den publika nyckeln (credentialPublicKey) i User-modellen
-// - Passkeys är kryptografiskt bundna till domänen → immuna mot phishing
+// - Passkeys är kryptografiskt bundna till domänen
 // - Befintlig /register och /login behålls som fallback under övergångsperioden
-//
-// Varför vi inte implementerar det nu: WebAuthn kräver HTTPS i produktion
-// och en omstrukturering av hela auth-flödet (frontend + backend).
+
+// Varför vi inte implementerar det nu: WebAuthn kräver HTTPS i produktion och en omstrukturering av hela auth-flödet (frontend + backend).
 // Kravet är formulerat och redo att implementeras i en framtida sprint.
 
 
@@ -264,16 +260,15 @@ app.patch("/messages/:id", authenticateUser, async (req, res) => {
   }
 })
 
-// [KRAV K6] DELETE — Kritisk säkerhetsfix (STRIDE: Elevation of Privilege)
+// [KRAV K6] DELETE - Kritisk säkerhetsfix (STRIDE: Elevation of Privilege)
 // OWASP A01: Broken Access Control
-//
+
 // FÖRE: app.delete("/messages/:id", async (req, res) => { ... })
-//   - Ingen authenticateUser-middleware → vem som helst kunde anropa endpointen
-//   - Ingen ägarkontroll → vilkens meddelande som helst kunde raderas
-//   - En angripare behövde bara ett meddelande-ID och ett curl-kommando
+// - Ingen authenticateUser-middleware → vem som helst kunde anropa endpointen
+// - Ingen ägarkontroll → vilkens meddelande som helst kunde raderas
+// - En angripare behövde bara ett meddelande-ID och ett curl-kommando
 //
-// EFTER: authenticateUser tillagd + ägarkontroll som jämför message.user
-//        mot req.user._id (samma mönster som PATCH redan använde)
+// EFTER: authenticateUser tillagd + ägarkontroll som jämför message.user mot req.user._id (samma mönster som PATCH redan använde)
 
 app.delete("/messages/:id", authenticateUser, async (req, res) => {
   if (!isValidId(req.params.id)) return res.status(400).json({ error: "Invalid message ID" })
