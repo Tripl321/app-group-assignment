@@ -8,8 +8,22 @@ import jwt from "jsonwebtoken"
 import rateLimit from "express-rate-limit" // [KRAV K5] Nytt paket: npm install express-rate-limit
 import { Message } from "./models/Message.js"
 import { User } from "./models/User.js"
+import { Comment } from "./models/Comment.js"
 import { authenticateUser } from "./middleware/auth.js"
 import "./config/db.js"
+
+const KAREN_REPLIES = [
+  "Så får man inte skriva. Jag vill prata med din chef!",
+  "Det här är inte vad jag beställde. Jag vill ha en ny!",
+  "Hur vågar du? Jag ska prata med din chef!",
+  "Detta är helt oacceptabelt! Jag kräver att få tala med någon ansvarig!",
+  "Jag har aldrig blivit så dåligt behandlad! Namn och adress på din chef, tack!",
+  "Ursäkta mig? Det där var inte alls professionellt. Jag vill prata med din chef omedelbart!",
+  "Nej men hallå! Så gör man bara inte. Jag ringer konsumentverket!",
+  "Är det så här ni behandlar era kunder? Jag vill ha ett namn!",
+  "Det där var sista gången jag handlar här. Jag tänker berätta för alla jag känner om denna dåliga service!",
+  "Oacceptabelt! Jag ska skriva ett ilsket inlägg på Facebook om detta!",
+]
 
 // [KRAV K4] Borttagen: import listEndpoints from "express-list-endpoints"
 // Motivering: Exponerade alla API-endpoints för angripare. Borttagen för att minska attackytan.
@@ -37,6 +51,21 @@ app.use(cors({
 }))
 
 app.use(express.json())
+
+const sanitize = (obj) => {
+  if (typeof obj !== "object" || obj === null) return obj
+  if (Array.isArray(obj)) return obj.map(sanitize)
+  return Object.fromEntries(
+    Object.entries(obj)
+      .filter(([key]) => !key.startsWith("$"))
+      .map(([key, val]) => [key, sanitize(val)])
+  )
+}
+
+app.use((req, res, next) => {
+  if (req.body) req.body = sanitize(req.body)
+  next()
+})
 
 // [KRAV K5] Rate Limiting — Hastighetsbegränsning (STRIDE: Denial of Service)
 // OWASP A07: Authentication Failures
@@ -88,13 +117,17 @@ app.post("/register", authLimiter, async (req, res) => {
   try {
     const { email, password, username } = req.body
 
-    if (!username || username.trim().length < 2) {
+    if (typeof username !== "string" || typeof email !== "string" || typeof password !== "string") {
+      return res.status(400).json({ success: false, message: "Invalid input format" })
+    }
+
+    if (username.trim().length < 2) {
       return res.status(400).json({ success: false, message: "Username must be at least 2 characters" })
     }
 
     const existingUser = await User.findOne({
-      $or: [{ email: email.toLowerCase() }, { username: username.trim() }]
-    })
+      $or: [{ email: { $eq: email.toLowerCase() } }, { username: { $eq: username.trim() } }]
+    }).lean()
 
     if (existingUser) {
       const field = existingUser.email === email.toLowerCase() ? "email" : "username"
@@ -139,9 +172,14 @@ app.post("/login", authLimiter, async (req, res) => {
   // [KRAV K5] authLimiter tillagd — max 10 inloggningsförsök per 15 min per IP
   try {
     const { login, password } = req.body
+
+    if (typeof login !== "string" || typeof password !== "string") {
+      return res.status(400).json({ success: false, message: "Invalid input format" })
+    }
+
     const user = await User.findOne({
-      $or: [{ username: login }, { email: login }]
-    })
+      $or: [{ username: { $eq: login } }, { email: { $eq: login } }]
+    }).lean()
 
     // [KRAV K6 / K1] Säkerhetsförbättring: Generiska felmeddelanden
     // STRIDE: Spoofing (förhindrar user enumeration)
@@ -205,6 +243,7 @@ app.get("/messages", async (req, res) => {
       .exec()
     res.json(messages)
   } catch (error) {
+    console.error("Fetch messages error:", error)
     res.status(500).json({ message: "Could not fetch messages" })
   }
 })
@@ -213,7 +252,10 @@ app.post("/messages", authenticateUser, async (req, res) => {
   // [KRAV K2] Indatavalidering sker via Mongoose-schemat (se models/Message.js)
   // som kräver minlength: 3, maxlength: 140, trim: true.
   // Vi trimmar även här för konsekvent hantering.
-  const trimmedMessage = req.body.message?.trim()
+  if (typeof req.body.message !== "string") {
+    return res.status(400).json({ message: "Message must be a string" })
+  }
+  const trimmedMessage = req.body.message.trim()
   const message = new Message({ message: trimmedMessage, user: req.user._id })
   try {
     const saved = await message.save()
@@ -242,7 +284,10 @@ app.patch("/messages/:id", authenticateUser, async (req, res) => {
     }
 
     // [KRAV K2] Konsekvent fältnamn: "message" istället för "editedMessage"
-    message.message = req.body.message?.trim()
+    if (typeof req.body.message !== "string") {
+      return res.status(400).json({ error: "Message must be a string" })
+    }
+    message.message = req.body.message.trim()
     await message.save() // Mongoose-validering (minlength/maxlength) körs här
     const updated = await message.populate("user", "username")
 
@@ -256,6 +301,7 @@ app.patch("/messages/:id", authenticateUser, async (req, res) => {
 
     res.json(updated)
   } catch (error) {
+    console.error("Update message error:", error)
     res.status(400).json({ error: "Could not update message" })
   }
 })
@@ -296,6 +342,56 @@ app.delete("/messages/:id", authenticateUser, async (req, res) => {
     res.status(204).send()
   } catch (error) {
     res.status(400).json({ error: "Could not delete message" })
+  }
+})
+
+app.get("/messages/:id/comments", async (req, res) => {
+  if (!isValidId(req.params.id)) return res.status(400).json({ error: "Invalid message ID" })
+  try {
+    const comments = await Comment.find({ message: req.params.id })
+      .sort({ createdAt: "asc" })
+      .populate("user", "username")
+      .exec()
+    res.json(comments)
+  } catch (error) {
+    res.status(500).json({ message: "Could not fetch comments" })
+  }
+})
+
+app.post("/messages/:id/comments", authenticateUser, async (req, res) => {
+  if (!isValidId(req.params.id)) return res.status(400).json({ error: "Invalid message ID" })
+  try {
+    const message = await Message.findById(req.params.id)
+    if (!message) return res.status(404).json({ error: "Message not found" })
+
+    if (typeof req.body.text !== "string") {
+      return res.status(400).json({ error: "Comment must be a string" })
+    }
+    const trimmedText = req.body.text.trim()
+    if (trimmedText.length < 1) {
+      return res.status(400).json({ error: "Comment cannot be empty" })
+    }
+
+    const comment = new Comment({
+      text: trimmedText,
+      user: req.user._id,
+      message: req.params.id,
+    })
+    const saved = await comment.save()
+    const populated = await saved.populate("user", "username")
+
+    const randomReply = KAREN_REPLIES[Math.floor(Math.random() * KAREN_REPLIES.length)]
+    const karenComment = new Comment({
+      text: randomReply,
+      message: req.params.id,
+      parentComment: saved._id,
+    })
+    await karenComment.save()
+
+    res.status(201).json(populated)
+  } catch (error) {
+    console.error("Comment error:", error)
+    res.status(400).json({ error: "Could not save comment" })
   }
 })
 

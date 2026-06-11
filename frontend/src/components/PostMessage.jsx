@@ -1,4 +1,5 @@
 import { useState } from "react"
+import PropTypes from "prop-types"
 import { BASE_URL } from "../api"
 
 export const PostMessage = ({ newMessage, fetchPosts, user, onUnauthorized }) => {
@@ -80,10 +81,21 @@ export const PostMessage = ({ newMessage, fetchPosts, user, onUnauthorized }) =>
           disabled={submitting}
         >
           <span className="emoji">&#x2665;</span>
-          Send message
+          {' Send message '}
           <span className="emoji">&#x2665;</span>
         </button>
       </form>
     </div>
   )
+}
+
+PostMessage.propTypes = {
+  newMessage: PropTypes.func.isRequired,
+  fetchPosts: PropTypes.func.isRequired,
+  user: PropTypes.shape({
+    response: PropTypes.shape({
+      accessToken: PropTypes.string,
+    }),
+  }),
+  onUnauthorized: PropTypes.func.isRequired,
 }

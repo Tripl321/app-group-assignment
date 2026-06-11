@@ -1,0 +1,9 @@
+{
+    "sonarlint.connectedMode.project": {
+        "connectionId": "Tripl321",
+        "projectKey": "Tripl321_app-group-assignment"
+    },
+    "semgrep.scan.onlyGitDirty": false,
+    "snyk.advanced.organization": "72d2f1f3-1151-4ce8-a678-4e3fe8532c92",
+    "snyk.advanced.autoSelectOrganization": true
+}

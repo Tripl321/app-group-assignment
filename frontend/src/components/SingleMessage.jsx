@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { BASE_URL } from "../api"
+import { CommentSection } from "./CommentSection"
 
 export const SingleMessage = ({ message, user, onUnauthorized, fetchPosts }) => {
   const [isEditing, setIsEditing] = useState(false)
@@ -130,6 +131,12 @@ export const SingleMessage = ({ message, user, onUnauthorized, fetchPosts }) => 
       <div className="info-wrapper">
         <div className="info-user">{message.user?.username || ""}</div>
       </div>
+
+      <CommentSection
+        messageId={message._id}
+        user={user}
+        onUnauthorized={onUnauthorized}
+      />
     </div>
   )
 }
