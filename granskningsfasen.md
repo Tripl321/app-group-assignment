@@ -94,3 +94,6 @@ länk till vår presentation: [FAS3.pdf](https://github.com/user-attachments/fil
 
 <img width="1204" height="907" alt="{933BD7C2-423C-415F-96D2-B434713388A5}" src="https://github.com/user-attachments/assets/9d185fa9-70a3-418b-8bcf-c7a18c6a05ca" />
 
+<img width="530" height="42" alt="image" src="https://github.com/user-attachments/assets/6cde92f6-6feb-4841-ae53-90b063761520" />
+
+
