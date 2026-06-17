@@ -90,8 +90,7 @@ Sammanfattningsvis: 16 alerts, fyra paket, och det viktigaste fyndet löstes med
 
 En viktig poäng att notera här: Dependabot granskar bara beroenden, inte vår egen kod. Vår egen kod granskade vi själva i Fas 2: autentisering på DELETE, ägarkontroll, indatavalidering och rate limiting. De två granskningarna täcker olika saker; vi tog koden vi skrivit, Dependabot tog koden vi lånat in. Tillsammans täcker de hela appen.
 
-Och det är den centrala lärdomen: säkerhet är inte ett engångsarbete. Ett paket som var säkert 2019 är inte automatiskt säkert idag. Att ha verktyg som Dependabot påslaget och faktiskt agera på dess fynd i form av brister är skillnaden mellan en app som var säker och en som förblir säker.
-[FAS3.pdf](https://github.com/user-attachments/files/29040497/FAS3.pdf)
+länk till vår presentation: [FAS3.pdf](https://github.com/user-attachments/files/29040497/FAS3.pdf)
 
 <img width="1204" height="907" alt="{933BD7C2-423C-415F-96D2-B434713388A5}" src="https://github.com/user-attachments/assets/9d185fa9-70a3-418b-8bcf-c7a18c6a05ca" />
 
